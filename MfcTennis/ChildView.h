@@ -189,10 +189,6 @@ public:
 	//   1. 주어진 가속도로 속도를 재계산
 	//   2. 주어진 속도로 위치를 재계산
 	void IntegratePoint(CPoint addPoint, CPoint* currentPoint);
-
-	//// 주어진 문자가 영문자이고
-	//// 대소문자 구분 없이 같은 글자인지 검사
-	//bool IsSameAlphabet(char c1, char c2);
 	
 	// 선수가 플레이 영역 내에 있는지 검사
 	int IsThereWall(int player_idx);
@@ -206,10 +202,6 @@ public:
 	// 선수를 움직일 때 실행
 	// 해당 선수와 키를 받아 가속도값을 처리
 	void PlayerMove(int player_idx, UINT command);
-
-	//// x축 또는 y축 좌표값의 거리와 해당 축의 최대거리를 입력받아
-	//// 픽셀값에 맞는 거리를 재계산
-	//int ReCalcDistance(int dt, int maxDt);
 
 	// 가로 길이값 재계산
 	int ReCalcWidth(int width);

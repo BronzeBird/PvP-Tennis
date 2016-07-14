@@ -300,8 +300,18 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 				Fault(0);
 				break;
 			}
-			else
+			else {
 				GameStatus = RUNNING;
+				m_TennisGame.bLastTouch = false;
+				m_Player[0].bmpPlayer.DeleteObject();
+				m_Player[0].bmpPlayer.LoadBitmap(IDB_PLAYER1_SWING);
+				if(!m_Player[0].bSwinging)
+					if(Swing(0)) {
+						m_Ball.ptVelosity.x = BALL_INITIAL_VELOSITY_X + m_Player[0].ptVelosity.x;
+						m_Ball.ptVelosity.y = BALL_INITIAL_VELOSITY_Y + m_Player[0].ptVelosity.y;
+					}
+				break;
+			}
 		case WAITINGSERVE:
 			if(GameStatus != WAITINGSERVE) break;
 			if(m_TennisGame.bCurrentServe) break;
@@ -344,8 +354,18 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 				Fault(1);
 				break;
 			}
-			else
+			else {
 				GameStatus = RUNNING;
+				m_TennisGame.bLastTouch = true;
+				m_Player[1].bmpPlayer.DeleteObject();
+				m_Player[1].bmpPlayer.LoadBitmap(IDB_PLAYER2_SWING);
+				if(!m_Player[1].bSwinging)
+					if(Swing(1)) {
+						m_Ball.ptVelosity.x = -BALL_INITIAL_VELOSITY_X + m_Player[1].ptVelosity.x;
+						m_Ball.ptVelosity.y = BALL_INITIAL_VELOSITY_Y + m_Player[1].ptVelosity.y;
+					}
+				break;
+			}
 		case WAITINGSERVE:
 			if(GameStatus != WAITINGSERVE) break;
 			if(!m_TennisGame.bCurrentServe) break;
@@ -676,12 +696,6 @@ bool CChildView::OverlapCircleArea(CRect ellipse, CRect rect)
 	center.SetPoint(	Round((ellipse.left + ellipse.right) / 2.0),
 						Round((ellipse.top + ellipse.bottom) / 2.0));
 	int radius = Round((ellipse.right - ellipse.left) / 2.0);
-	//for(int i = center.y - radius; pow((double)radius, 2) <= pow(center.x - 1.0, 2) + pow(center.y - 1.0, 2) ;i++) {
-	//	for(int j = center.x - radius; pow((double)radius, 2) <= pow(center.x - 1.0, 2) + pow(center.y - 1.0, 2) ;j++) {
-	//		if(i >= rect.top && i <= rect.bottom && j >= rect.left && j <= rect.right)
-	//			return true;
-	//	}
-	//}
 
 	// ellipse의 중심이 rect 영역 안에 있으면 무조건 겹친다.
 	if(	center.x >= rect.left && center.x <= rect.right &&
@@ -758,12 +772,6 @@ void CChildView::PlayerMove(int player_idx, UINT command)
 		break;
 	}
 }
-
-
-//int CChildView::ReCalcDistance(int dt, int maxDt)
-//{
-//	return Round(dt * maxDt / (double)HEIGHT);
-//}
 
 
 int CChildView::ReCalcWidth(int width)
