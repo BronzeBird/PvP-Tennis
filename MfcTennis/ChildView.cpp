@@ -147,7 +147,7 @@ void CChildView::OnPaint()
 	brush.DeleteObject();
 
 	// 스코어 정보 표시
-	str.Format(TEXT("%s : %d"), m_Player[0].strName, m_Player[0].nScore);
+	/*str.Format(TEXT("%s : %d"), m_Player[0].strName, m_Player[0].nScore);
 	dc.DrawText(str,
 		CRect(ReCalcWidth(40), ReCalcHeight(30),
 		ReCalcWidth(40) + 100, ReCalcHeight(30) + 50), DT_SINGLELINE);
@@ -155,7 +155,50 @@ void CChildView::OnPaint()
 	dc.DrawText(str,
 		CRect(ReCalcWidth(600) - 100, ReCalcHeight(30),
 		ReCalcWidth(600), ReCalcHeight(30) + 50),
-		DT_RIGHT | DT_SINGLELINE);
+		DT_RIGHT | DT_SINGLELINE);*/
+	dc.SelectStockObject(BLACK_BRUSH);
+	dc.SelectStockObject(WHITE_PEN);
+	dc.Rectangle(ReCalcWidth(200), ReCalcHeight(30),
+		ReCalcWidth(440), ReCalcHeight(210));
+	dc.MoveTo(ReCalcWidth(200), ReCalcHeight(90));
+	dc.LineTo(ReCalcWidth(440), ReCalcHeight(90));
+	dc.MoveTo(ReCalcWidth(200), ReCalcHeight(110));
+	dc.LineTo(ReCalcWidth(320), ReCalcHeight(110));
+	dc.MoveTo(ReCalcWidth(200), ReCalcHeight(130));
+	dc.LineTo(ReCalcWidth(320), ReCalcHeight(130));
+	dc.MoveTo(ReCalcWidth(200), ReCalcHeight(150));
+	dc.LineTo(ReCalcWidth(440), ReCalcHeight(150));
+	dc.MoveTo(ReCalcWidth(224), ReCalcHeight(90));
+	dc.LineTo(ReCalcWidth(224), ReCalcHeight(150));
+	dc.MoveTo(ReCalcWidth(248), ReCalcHeight(90));
+	dc.LineTo(ReCalcWidth(248), ReCalcHeight(150));
+	dc.MoveTo(ReCalcWidth(272), ReCalcHeight(90));
+	dc.LineTo(ReCalcWidth(272), ReCalcHeight(150));
+	dc.MoveTo(ReCalcWidth(296), ReCalcHeight(90));
+	dc.LineTo(ReCalcWidth(296), ReCalcHeight(150));
+	dc.MoveTo(ReCalcWidth(320), ReCalcHeight(30));
+	dc.LineTo(ReCalcWidth(320), ReCalcHeight(210));
+	dc.MoveTo(ReCalcWidth(360), ReCalcHeight(30));
+	dc.LineTo(ReCalcWidth(360), ReCalcHeight(210));
+	dc.MoveTo(ReCalcWidth(400), ReCalcHeight(30));
+	dc.LineTo(ReCalcWidth(400), ReCalcHeight(210));
+	dc.SetTextColor(RGB(255, 255, 255));
+	dc.SetBkColor(RGB(0, 0, 0));
+	rect.SetRect(201, 31, 319, 89);
+	dc.DrawText(m_Player[0].strName, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	rect.SetRect(201, 151, 319, 209);
+	dc.DrawText(m_Player[1].strName, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	
+	rect.SetRect(201, 111, 223, 128);
+	dc.DrawText("0", rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	rect.SetRect(225, 111, 247, 128);
+	dc.DrawText("15", rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	rect.SetRect(249, 111, 271, 128);
+	dc.DrawText("30", rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	rect.SetRect(273, 111, 295, 128);
+	dc.DrawText("40", rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	rect.SetRect(297, 111, 319, 128);
+	dc.DrawText("A", rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 
 	// 심판 메시지 표시
 	if(m_TennisGame.strRefree != "")
@@ -302,6 +345,8 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			}
 			else {
 				GameStatus = RUNNING;
+				m_TennisGame.in_area.SetRect(m_TennisGame.net.right, LAND_TOP,
+					m_TennisGame.court.right, HEIGHT);
 				m_TennisGame.bLastTouch = false;
 				m_Player[0].bmpPlayer.DeleteObject();
 				m_Player[0].bmpPlayer.LoadBitmap(IDB_PLAYER1_SWING);
@@ -356,6 +401,8 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			}
 			else {
 				GameStatus = RUNNING;
+				m_TennisGame.in_area.SetRect(m_TennisGame.court.left, LAND_TOP,
+					m_TennisGame.net.left, HEIGHT);
 				m_TennisGame.bLastTouch = true;
 				m_Player[1].bmpPlayer.DeleteObject();
 				m_Player[1].bmpPlayer.LoadBitmap(IDB_PLAYER2_SWING);
@@ -539,9 +586,6 @@ void CChildView::AddScore(bool bPlayer)
 
 void CChildView::CheckBall(void)
 {
-	// 상태체크와 상태변화 사이에 Invalidate() 함수를 실행하여
-	// 화면을 다시 그릴 것
-	
 	// 공이 땅에 떨어졌을 때
 	if(m_Ball.ball_rect.bottom >= LAND_TOP - 1) {
 		// 첫번째 바운드
@@ -584,53 +628,6 @@ void CChildView::CheckBall(void)
 		AddScore(!m_TennisGame.bLastTouch);
 		return;
 	}
-
-	//// 공이 땅에 떨어졌을 경우
-	//if(m_Ball.ptCenter.y >= LAND_TOP - 1) {
-	//	// 네트 왼쪽에 떨어졌고 코트 안이거나
-	//	// 네트 오른쪽에 떨어졌고 코트 밖이면
-	//	// p2 득점
-	//	if(m_Ball.ptCenter.x < WIDTH / 2 && m_Ball.ptCenter.x >= COURT_LEFT ||
-	//		m_Ball.ptCenter.x > COURT_RIGHT) {
-	//		m_Player[1].nScore[0][0]++;
-	//		m_TennisGame.bCurrentServe = true;
-	//		GameStatus = WAITINGSERVE;
-	//		KillTimer(1);
-	//		return;
-	//	}
-	//	// 네트 오른쪽에 떨어졌고 코트 안이거나
-	//	// 네트 왼쪽에 떨어졌고 코트 밖이면
-	//	// p1 득점
-	//	if(m_Ball.ptCenter.x >= WIDTH / 2 && m_Ball.ptCenter.x <= COURT_RIGHT ||
-	//		m_Ball.ptCenter.x < COURT_LEFT) {
-	//		m_Player[0].nScore[0][0]++;
-	//		m_TennisGame.bCurrentServe = false;
-	//		GameStatus = WAITINGSERVE;
-	//		KillTimer(1);
-	//		return;
-	//	}
-	//}
-
-	//// 공이 네트에 맞았을 경우
-	//if(	OverlapCircleArea(m_Ball.ball_rect, m_TennisGame.net))
-	//{
-	//	// 마지막으로 공을 친 선수의 상대편이 득점
-	//	if(m_TennisGame.bLastTouch) {
-	//		m_Player[1].nScore[0][0]++;
-	//		m_TennisGame.bCurrentServe = true;
-	//		GameStatus = WAITINGSERVE;
-	//		return;
-	//	}
-	//	else {
-	//	m_Player[0].nScore[0][0]++;
-	//	m_TennisGame.bCurrentServe = false;
-	//	GameStatus = WAITINGSERVE;
-	//	return;
-	//	}
-	//}
-
-	// 마지막에는 스코어 체크
-	//AddScore();
 }
 
 
@@ -809,9 +806,9 @@ void CChildView::ResetGame(void)
 	// 서브권자가 P2일 경우 P1의 서비스박스
 	//m_TennisGame.in_area.CopyRect(m_TennisGame.service_box);
 	m_TennisGame.in_area.SetRect(
-		!m_TennisGame.bCurrentServe ? m_TennisGame.service_box.left : m_TennisGame.net.right,
+		m_TennisGame.bCurrentServe ? m_TennisGame.service_box.left : m_TennisGame.net.right,
 		LAND_TOP,
-		!m_TennisGame.bCurrentServe ? m_TennisGame.net.right : m_TennisGame.service_box.right,
+		m_TennisGame.bCurrentServe ? m_TennisGame.net.left : m_TennisGame.service_box.right,
 		HEIGHT);
 
 	// 자동으로 게임 시작(서브대기)
@@ -880,10 +877,6 @@ bool CChildView::Swing(int player_idx)
 	if(m_Player[player_idx].bSwinging)
 		return false;
 	m_Player[player_idx].bSwinging = true;
-	/*if(	m_Ball.ptCenter.x > m_Player[player_idx].player_rect.left &&
-		m_Ball.ptCenter.x < m_Player[player_idx].player_rect.right &&
-		m_Ball.ptCenter.y > m_Player[player_idx].player_rect.top &&
-		m_Ball.ptCenter.y < m_Player[player_idx].player_rect.bottom - 1)*/
 	if(OverlapCircleArea(m_Ball.ball_rect, m_Player[player_idx].player_rect))
 		return true;
 	return false;
