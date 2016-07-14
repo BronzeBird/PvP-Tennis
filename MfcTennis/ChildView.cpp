@@ -147,64 +147,117 @@ void CChildView::OnPaint()
 	brush.DeleteObject();
 
 	// 스코어 정보 표시
-	/*str.Format(TEXT("%s : %d"), m_Player[0].strName, m_Player[0].nScore);
-	dc.DrawText(str,
-		CRect(ReCalcWidth(40), ReCalcHeight(30),
-		ReCalcWidth(40) + 100, ReCalcHeight(30) + 50), DT_SINGLELINE);
-	str.Format("%s : %d", m_Player[1].strName, m_Player[1].nScore);
-	dc.DrawText(str,
-		CRect(ReCalcWidth(600) - 100, ReCalcHeight(30),
-		ReCalcWidth(600), ReCalcHeight(30) + 50),
-		DT_RIGHT | DT_SINGLELINE);*/
 	dc.SelectStockObject(BLACK_BRUSH);
 	dc.SelectStockObject(WHITE_PEN);
-	dc.Rectangle(ReCalcWidth(200), ReCalcHeight(30),
-		ReCalcWidth(440), ReCalcHeight(210));
-	dc.MoveTo(ReCalcWidth(200), ReCalcHeight(90));
-	dc.LineTo(ReCalcWidth(440), ReCalcHeight(90));
-	dc.MoveTo(ReCalcWidth(200), ReCalcHeight(110));
+	dc.Rectangle(ReCalcWidth(170), ReCalcHeight(30),
+		ReCalcWidth(470), ReCalcHeight(210));
+	dc.MoveTo(ReCalcWidth(170), ReCalcHeight(90));
+	dc.LineTo(ReCalcWidth(470), ReCalcHeight(90));
+	dc.MoveTo(ReCalcWidth(170), ReCalcHeight(110));
 	dc.LineTo(ReCalcWidth(320), ReCalcHeight(110));
-	dc.MoveTo(ReCalcWidth(200), ReCalcHeight(130));
+	dc.MoveTo(ReCalcWidth(170), ReCalcHeight(130));
 	dc.LineTo(ReCalcWidth(320), ReCalcHeight(130));
-	dc.MoveTo(ReCalcWidth(200), ReCalcHeight(150));
-	dc.LineTo(ReCalcWidth(440), ReCalcHeight(150));
-	dc.MoveTo(ReCalcWidth(224), ReCalcHeight(90));
-	dc.LineTo(ReCalcWidth(224), ReCalcHeight(150));
-	dc.MoveTo(ReCalcWidth(248), ReCalcHeight(90));
-	dc.LineTo(ReCalcWidth(248), ReCalcHeight(150));
-	dc.MoveTo(ReCalcWidth(272), ReCalcHeight(90));
-	dc.LineTo(ReCalcWidth(272), ReCalcHeight(150));
-	dc.MoveTo(ReCalcWidth(296), ReCalcHeight(90));
-	dc.LineTo(ReCalcWidth(296), ReCalcHeight(150));
+	dc.MoveTo(ReCalcWidth(170), ReCalcHeight(150));
+	dc.LineTo(ReCalcWidth(470), ReCalcHeight(150));
+	dc.MoveTo(ReCalcWidth(200), ReCalcHeight(90));
+	dc.LineTo(ReCalcWidth(200), ReCalcHeight(150));
+	dc.MoveTo(ReCalcWidth(230), ReCalcHeight(90));
+	dc.LineTo(ReCalcWidth(230), ReCalcHeight(150));
+	dc.MoveTo(ReCalcWidth(260), ReCalcHeight(90));
+	dc.LineTo(ReCalcWidth(260), ReCalcHeight(150));
+	dc.MoveTo(ReCalcWidth(290), ReCalcHeight(90));
+	dc.LineTo(ReCalcWidth(290), ReCalcHeight(150));
 	dc.MoveTo(ReCalcWidth(320), ReCalcHeight(30));
 	dc.LineTo(ReCalcWidth(320), ReCalcHeight(210));
-	dc.MoveTo(ReCalcWidth(360), ReCalcHeight(30));
-	dc.LineTo(ReCalcWidth(360), ReCalcHeight(210));
-	dc.MoveTo(ReCalcWidth(400), ReCalcHeight(30));
-	dc.LineTo(ReCalcWidth(400), ReCalcHeight(210));
+	dc.MoveTo(ReCalcWidth(370), ReCalcHeight(30));
+	dc.LineTo(ReCalcWidth(370), ReCalcHeight(210));
+	dc.MoveTo(ReCalcWidth(420), ReCalcHeight(30));
+	dc.LineTo(ReCalcWidth(420), ReCalcHeight(210));
 	dc.SetTextColor(RGB(255, 255, 255));
 	dc.SetBkColor(RGB(0, 0, 0));
-	rect.SetRect(201, 31, 319, 89);
+	rect.SetRect(ReCalcWidth(171), ReCalcHeight(31), ReCalcWidth(319), ReCalcHeight(89));
 	dc.DrawText(m_Player[0].strName, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-	rect.SetRect(201, 151, 319, 209);
+	rect.SetRect(ReCalcWidth(171), ReCalcHeight(151), ReCalcWidth(319), ReCalcHeight(209));
 	dc.DrawText(m_Player[1].strName, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-	
-	rect.SetRect(201, 111, 223, 128);
+
+	rect.SetRect(ReCalcWidth(171), ReCalcHeight(111), ReCalcWidth(199), ReCalcHeight(128));
 	dc.DrawText("0", rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-	rect.SetRect(225, 111, 247, 128);
+	rect.SetRect(ReCalcWidth(201), ReCalcHeight(111), ReCalcWidth(229), ReCalcHeight(128));
 	dc.DrawText("15", rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-	rect.SetRect(249, 111, 271, 128);
+	rect.SetRect(ReCalcWidth(231), ReCalcHeight(111), ReCalcWidth(259), ReCalcHeight(128));
 	dc.DrawText("30", rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-	rect.SetRect(273, 111, 295, 128);
+	rect.SetRect(ReCalcWidth(261), ReCalcHeight(111), ReCalcWidth(289), ReCalcHeight(128));
 	dc.DrawText("40", rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-	rect.SetRect(297, 111, 319, 128);
+	rect.SetRect(ReCalcWidth(291), ReCalcHeight(111), ReCalcWidth(319), ReCalcHeight(128));
 	dc.DrawText("A", rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 
+	brush.CreateSolidBrush(RGB(255, 0, 0));
+	dc.SelectStockObject(NULL_PEN);
+	dc.SelectObject(brush);;
+	rect.SetRect(ReCalcWidth(
+		m_Player[0].nScore == ZERO ? 171 :
+		m_Player[0].nScore == FIRST ? 201 :
+		m_Player[0].nScore == SECOND ? 231 :
+		m_Player[0].nScore == THIRD ? 261 :291
+		),
+		ReCalcHeight(91),
+		ReCalcWidth(
+		m_Player[0].nScore == ZERO ? 200 :
+		m_Player[0].nScore == FIRST ? 230 :
+		m_Player[0].nScore == SECOND ? 260 :
+		m_Player[0].nScore == THIRD ? 290 :320
+		),
+		ReCalcHeight(110));
+	dc.Rectangle(rect);
+	brush.DeleteObject();
+
+	brush.CreateSolidBrush(RGB(0, 0, 255));
+	dc.SelectStockObject(NULL_PEN);
+	dc.SelectObject(brush);;
+	rect.SetRect(ReCalcWidth(
+		m_Player[1].nScore == ZERO ? 171 :
+		m_Player[1].nScore == FIRST ? 201 :
+		m_Player[1].nScore == SECOND ? 231 :
+		m_Player[1].nScore == THIRD ? 261 :291
+		),
+		ReCalcHeight(131),
+		ReCalcWidth(
+		m_Player[1].nScore == ZERO ? 200 :
+		m_Player[1].nScore == FIRST ? 230 :
+		m_Player[1].nScore == SECOND ? 260 :
+		m_Player[1].nScore == THIRD ? 290 :320
+		),
+		ReCalcHeight(150));
+	dc.Rectangle(rect);
+	brush.DeleteObject();
+
+	rect.SetRect(ReCalcWidth(321), ReCalcHeight(91), ReCalcWidth(369), ReCalcHeight(148));
+	dc.DrawText("Ⅰ", rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	rect.SetRect(ReCalcWidth(371), ReCalcHeight(91), ReCalcWidth(419), ReCalcHeight(148));
+	dc.DrawText("Ⅱ", rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	rect.SetRect(ReCalcWidth(421), ReCalcHeight(91), ReCalcWidth(469), ReCalcHeight(148));
+	dc.DrawText("Ⅲ", rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+
+	for(int i = 0; i < m_TennisGame.nCurrentSet; i++) {
+		rect.SetRect(ReCalcWidth(321 + i*50), ReCalcHeight(31),
+			ReCalcWidth(369 + i*50), ReCalcHeight(88));
+		str.Format("%d", m_Player[0].nGame[i]);
+		dc.DrawText(str, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+
+		rect.SetRect(ReCalcWidth(321 + i*50), ReCalcHeight(151),
+			ReCalcWidth(369 + i*50), ReCalcHeight(208));
+		str.Format("%d", m_Player[1].nGame[i]);
+		dc.DrawText(str, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	}
+
 	// 심판 메시지 표시
-	if(m_TennisGame.strRefree != "")
+	if(m_TennisGame.strRefree != "") {
+		dc.SetTextColor(RGB(0, 0, 0));
+		dc.SetBkColor(RGB(255, 255, 255));
 		dc.DrawText(m_TennisGame.strRefree,
-			CRect(ReCalcWidth(120), ReCalcHeight(200),
-			ReCalcWidth(120) + 100, ReCalcHeight(200) + 50), DT_SINGLELINE);
+			CRect(ReCalcWidth(120), ReCalcHeight(240),
+			ReCalcWidth(120) + 100, ReCalcHeight(240) + 50), DT_SINGLELINE);
+	}
 
 	// 그리기 메시지에 대해서는 CWnd::OnPaint()를 호출하지 마십시오.
 }
@@ -601,16 +654,16 @@ void CChildView::CheckBall(void)
 
 			// 공이 유효영역 밖에 떨어지면 fault 또는 아웃
 			else {
-					// 서브중이었을 때에는 fault
-					if(GameStatus == DOINGSERVE) {
-						Fault(m_TennisGame.bLastTouch);
-					}
-					// 서브중이 아니었을 때는 out
-					// 마지막으로 친 선수의 상대편이 득점
-					else {
-						AddScore(!m_TennisGame.bLastTouch);
-						return;
-					}
+				// 서브중이었을 때에는 fault
+				if(GameStatus == DOINGSERVE) {
+					Fault(m_TennisGame.bLastTouch);
+				}
+				// 서브중이 아니었을 때는 out
+				// 마지막으로 친 선수의 상대편이 득점
+				else {
+					AddScore(!m_TennisGame.bLastTouch);
+					return;
+				}
 			}
 		}
 
