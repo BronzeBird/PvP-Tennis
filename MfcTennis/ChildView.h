@@ -52,7 +52,7 @@
 #define PLAYER1_SERVE_POS	40
 #define PLAYER2_SERVE_POS	542
 
-#define MAX_SET 2				// 한 선수가 2세트를 먼저 획득하면 시합 종료
+#define MAX_SET 3				// 한 선수가 2세트를 먼저 획득하면 시합 종료(3세트까지 진행 가능)
 #define MAX_GAME 6				// 한 선수가 6게임을 먼저 획득하면 1세트 끝*
 #define LAST_SCORE 40			// 한 선수가 40점을 넘기면 1게임 끝*
 // *원바이투일 경우는 예외
@@ -82,8 +82,9 @@ struct Player {
 	CBitmap bmpPlayer;		// 선수 비트맵
 	bool bSwinging;			// 스윙 중인지를 체크
 	KeySetting key_set;		// 키보드 세팅값
-	int nScore[MAX_SET][MAX_GAME];	// 세트/게임별 점수
-	int nFootFault;			// Foot Fault 횟수
+	int nScore;				// 현재 게임 점수
+	int nGame[MAX_SET];		// 세트별 획득 게임 수
+	CString strName;		// 선수 이름
 };
 //==============================================================================
 
@@ -119,6 +120,9 @@ struct TennisGame {
 	CRect court;		// 코트 영역
 	CRect service_box;	// 서비스 박스 영역
 	CRect in_area;		// 유효(in) 영역
+	bool bFault;		// fault 횟수
+	CString strRefree;	// 심판 판정 메시지
+	
 };
 //==============================================================================
 
@@ -165,12 +169,21 @@ public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnUpdateGamePause(CCmdUI *pCmdUI);
 	
+	// 1게임 획득하고, 1세트 획득 및 게임 종료인지를 체크
+	void AddGame(bool bPlayer);
+
 	// 득점 상황이면 득점시키고 서브 대기 상태로 전환
 	void CheckBall(void);
+
+	// 점수를 추가하고 스코어 체크
+	void AddScore(bool bPlayer);
 
 	// 주어진 좌표값(pt)의 x 또는 y값을 현재 해상도에 맞는 픽셀값으로 변환
 	// axis값 : false=x, true=y
 	CPoint FitToResolution(CPoint pt);
+
+	// 서브 fault 처리
+	void Fault(bool player_idx);
 
 	// 현재 좌표값에 새 좌표값을 가산
 	//   1. 주어진 가속도로 속도를 재계산
@@ -227,6 +240,5 @@ public:
 	// 문자 데이터를 받아서 영문 소문자이면 대문자로 변환하고
 	// 아니면 그대로 반환한다.
 	UINT UpperCase(UINT nChar);
-	
 };
 
