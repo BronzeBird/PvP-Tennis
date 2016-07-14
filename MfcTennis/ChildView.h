@@ -16,8 +16,8 @@
 #define HEIGHT 480				// 화면의 높이
 #define GRAVITY_ACCELERATION 2	// 중력가속도=2pt/1frame^2
 #define BALL_MAX_SPEED 16		// 
-#define BALL_INITIAL_VELOSITY_X 20	// 공을 치는 순간의 속도(x방향)
-#define BALL_INITIAL_VELOSITY_Y -16	// 공을 치는 순간의 속도(y방향)
+#define BALL_INITIAL_VELOSITY_X 18	// 공을 치는 순간의 속도(x방향)
+#define BALL_INITIAL_VELOSITY_Y -18	// 공을 치는 순간의 속도(y방향)
 #define BALL_RADIUS 2			// 공의 반지름
 #define FRICTIONAL_FORCE 1		// 마찰력
 
@@ -49,8 +49,8 @@
 #define PLAYER_HEIGHT 48			// 플레이어 영역 높이
 
 // 플레이어 관련 위치값
-#define PLAYER1_SERVE_POS	21
-#define PLAYER2_SERVE_POS	562
+#define PLAYER1_SERVE_POS	40
+#define PLAYER2_SERVE_POS	542
 
 #define MAX_SET 2				// 한 선수가 2세트를 먼저 획득하면 시합 종료
 #define MAX_GAME 6				// 한 선수가 6게임을 먼저 획득하면 1세트 끝*
@@ -117,7 +117,8 @@ struct TennisGame {
 	CRect net;			// 네트 영역
 	CRect land;			// 땅 영역
 	CRect court;		// 코트 영역
-	CRect service_box;		// 서비스 박스 영역
+	CRect service_box;	// 서비스 박스 영역
+	CRect in_area;		// 유효(in) 영역
 };
 //==============================================================================
 
@@ -186,6 +187,9 @@ public:
 	// 원이 주어진 영역(직사각형)과 겹치는지 체크
 	bool OverlapCircleArea(CRect ellipse, CRect rect);
 
+	// 두 사각형이 겹치는지 체크
+	bool OverlapRectArea(CRect rect1, CRect rect2);
+
 	// 선수를 움직일 때 실행
 	// 해당 선수와 키를 받아 가속도값을 처리
 	void PlayerMove(int player_idx, UINT command);
@@ -223,5 +227,6 @@ public:
 	// 문자 데이터를 받아서 영문 소문자이면 대문자로 변환하고
 	// 아니면 그대로 반환한다.
 	UINT UpperCase(UINT nChar);
+	
 };
 
