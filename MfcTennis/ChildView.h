@@ -25,17 +25,21 @@
 #define LAND_LEFT 0
 #define LAND_RIGHT 640
 #define LAND_TOP 460
-#define LAND_BOTTOM 480
+//#define LAND_BOTTOM 480
 // 네트 영역
 #define NET_LEFT 318
 #define NET_RIGHT 321
 #define NET_TOP 440
-#define NET_BOTTOM 480
+//#define NET_BOTTOM 480
 // 코트 영역
 #define COURT_LEFT 99
 #define COURT_RIGHT 541
-#define COURT_TOP 460
-#define COURT_BOTTOM 480
+//#define COURT_TOP 460
+//#define COURT_BOTTOM 480
+
+// 서비스라인 영역
+#define SERVICE_BOX_LEFT 192
+#define SERVICE_BOX_RIGHT 448
 
 // 플레이어 관련 값들
 #define PLAYER_MOVE_ACCELERATION 3	// 선수가 x방향으로 이동할 때의 가속도
@@ -43,6 +47,10 @@
 #define PLAYER_MAX_SPEED 9			// 선수의 x방향의 최대속도
 #define PLAYER_WIDTH 48				// 플레이어 영역 너비
 #define PLAYER_HEIGHT 48			// 플레이어 영역 높이
+
+// 플레이어 관련 위치값
+#define PLAYER1_SERVE_POS	21
+#define PLAYER2_SERVE_POS	562
 
 #define MAX_SET 2				// 한 선수가 2세트를 먼저 획득하면 시합 종료
 #define MAX_GAME 6				// 한 선수가 6게임을 먼저 획득하면 1세트 끝*
@@ -71,10 +79,11 @@ struct Player {
 	CPoint ptSituation;		// 위치값
 	CPoint ptVelosity;		// 속도값
 	CPoint ptAcceleration;	// 가속도값
-	CBitmap bmpPlayer;		// 
+	CBitmap bmpPlayer;		// 선수 비트맵
 	bool bSwinging;			// 스윙 중인지를 체크
 	KeySetting key_set;		// 키보드 세팅값
 	int nScore[MAX_SET][MAX_GAME];	// 세트/게임별 점수
+	int nFootFault;			// Foot Fault 횟수
 };
 //==============================================================================
 
@@ -103,6 +112,12 @@ struct TennisGame {
 	int nCurrentSet;	// 현재 세트
 	int nHResolution;	// 가로 픽셀값
 	int nVResolution;	// 세로 픽셀값
+	// 아래 영역들은 공이 닿으면 안 되는 영역
+	// 초기화할 때, 실제 값보다 좌우상하 1pt씩 넓게 잡는다.
+	CRect net;			// 네트 영역
+	CRect land;			// 땅 영역
+	CRect court;		// 코트 영역
+	CRect service_box;		// 서비스 박스 영역
 };
 //==============================================================================
 

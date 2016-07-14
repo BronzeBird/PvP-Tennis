@@ -85,19 +85,25 @@ void CChildView::OnPaint()
 	dc.SelectStockObject(NULL_PEN);
 	// 땅, 네트, 코트 그리기는 배경화면 적용 후에는 생략한다.
 	dc.Rectangle(ReCalcWidth(LAND_LEFT), ReCalcHeight(LAND_TOP),
-		ReCalcWidth(LAND_RIGHT), ReCalcHeight(LAND_BOTTOM));		// 땅 영역
+		ReCalcWidth(LAND_RIGHT), ReCalcHeight(HEIGHT));		// 땅 영역
 	dc.SelectStockObject(BLACK_BRUSH);
 	dc.SelectStockObject(BLACK_PEN);
 	dc.Rectangle(ReCalcWidth(NET_LEFT), ReCalcHeight(NET_TOP),
-		ReCalcWidth(NET_RIGHT), ReCalcHeight(NET_BOTTOM));			// 네트 영역
+		ReCalcWidth(NET_RIGHT), ReCalcHeight(HEIGHT));			// 네트 영역
 
 	brush.CreateSolidBrush(RGB(0, 0, 255));
 	dc.SelectObject(brush);
-	dc.SelectStockObject(BLACK_PEN);
-	dc.Rectangle(ReCalcWidth(COURT_LEFT), ReCalcHeight(COURT_TOP),
-		ReCalcWidth(COURT_RIGHT), ReCalcHeight(COURT_BOTTOM));	// 코트 영역
+	dc.SelectStockObject(NULL_PEN);
+	dc.Rectangle(ReCalcWidth(COURT_LEFT), ReCalcHeight(LAND_TOP),
+		ReCalcWidth(COURT_RIGHT), ReCalcHeight(HEIGHT));	// 코트 영역
 	brush.DeleteObject();
 
+	brush.CreateSolidBrush(RGB(255, 0, 0));
+	dc.SelectObject(brush);
+	dc.Rectangle(ReCalcWidth(SERVICE_BOX_LEFT), ReCalcHeight(LAND_TOP),
+		ReCalcWidth(SERVICE_BOX_RIGHT), ReCalcHeight(HEIGHT));	// 서비스 라인
+	brush.DeleteObject();
+	
 	BITMAP bmpinfo[2];
 	CDC dcmem[2];
 
@@ -187,6 +193,14 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Player[0].bmpPlayer.LoadBitmap(IDB_PLAYER1);
 	m_Player[1].bmpPlayer.LoadBitmap(IDB_PLAYER2);
 
+	// 각 영역을 초기화한다.
+	// 공과 닿는 것까지 체크할 수 있도록
+	// 실제보다 상하좌우 1pt씩 넓게 잡는다(코트, 서비스박스 가로는 제외).
+	m_TennisGame.court.SetRect(COURT_LEFT, LAND_TOP - 1, COURT_RIGHT, HEIGHT);
+	m_TennisGame.land.SetRect(0, LAND_TOP - 1, WIDTH, HEIGHT);
+	m_TennisGame.net.SetRect(NET_LEFT - 1, NET_TOP - 1, NET_RIGHT + 1, HEIGHT);
+	m_TennisGame.service_box.SetRect(SERVICE_BOX_LEFT, LAND_TOP - 1, SERVICE_BOX_RIGHT, HEIGHT);
+
 	// 게임 초기화(게임 재시작시에만 실행)
 	ResetGame();
 
@@ -217,7 +231,7 @@ void CChildView::OnGamePause()
 {
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	// 게임 상태가 running일 때만 pause로 전환 가능
-	if(GameStatus == RUNNING) {
+	if(GameStatus == WAITINGSERVE || GameStatus == RUNNING) {
 		GameStatus = PAUSE;
 		KillTimer(1);
 	}
@@ -254,7 +268,7 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	// 공중에 떠 있을 때는 움직일 수 없다. 라켓 스윙만 가능.
 	if(m_Player[0].player_rect.bottom >= LAND_TOP &&
-		GameStatus == RUNNING) {
+		(GameStatus == WAITINGSERVE || GameStatus == RUNNING)) {
 		if( UpperCase(nChar) == m_Player[0].key_set.key_left && 
 			GetAsyncKeyState(UpperCase(m_Player[0].key_set.key_right) & 0x8000) == 0x0000)
 			PlayerMove(0, VK_LEFT);
@@ -288,7 +302,7 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 
 	if(m_Player[1].player_rect.bottom >= LAND_TOP &&
-		GameStatus == RUNNING) {
+		(GameStatus == WAITINGSERVE || GameStatus == RUNNING)) {
 		if( UpperCase(nChar) == m_Player[1].key_set.key_left && 
 			GetAsyncKeyState(UpperCase(m_Player[1].key_set.key_right) & 0x8000) == 0x0000)
 			PlayerMove(1, VK_LEFT);
@@ -329,7 +343,7 @@ void CChildView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 
-	if(GameStatus == RUNNING) {
+	if(GameStatus == WAITINGSERVE || GameStatus == RUNNING) {
 		if(UpperCase(nChar) == m_Player[0].key_set.key_left) {
 			m_Player[0].ptAcceleration.x = 0;
 		}
@@ -362,21 +376,21 @@ void CChildView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 }
 
 
-void CChildView::OnSize(UINT nType, int cx, int cy)
-{
-	CWnd::OnSize(nType, cx, cy);
-
-	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
-	m_TennisGame.nHResolution = cx;
-	m_TennisGame.nVResolution = cy;
-	ResetSituation();
-}
+//void CChildView::OnSize(UINT nType, int cx, int cy)
+//{
+//	CWnd::OnSize(nType, cx, cy);
+//
+//	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
+//	m_TennisGame.nHResolution = cx;
+//	m_TennisGame.nVResolution = cy;
+//	ResetSituation();
+//}
 
 
 void CChildView::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-	if(GameStatus == RUNNING)
+	if(GameStatus == WAITINGSERVE || GameStatus == RUNNING)
 		UpdateSituation();
 
 	CWnd::OnTimer(nIDEvent);
@@ -394,55 +408,57 @@ void CChildView::OnUpdateGamePause(CCmdUI *pCmdUI)
 // 추가 함수들
 //------------------------------------------------------------------------------
 
-//void CChildView::CheckBall(void)
-//{
-//	// 공이 땅에 떨어졌을 경우
-//	if(m_Ball.ptCenter.y >= m_TennisGame.land.top - 1) {
-//		// 네트 왼쪽에 떨어졌고 코트 안이거나
-//		// 네트 오른쪽에 떨어졌고 코트 밖이면
-//		// p2 득점
-//		if(m_Ball.ptCenter.x < m_TennisGame.nHResolution / 2 && m_Ball.ptSituation.x >= LEFT_ENDLINE ||
-//			m_Ball.ptCenter.x > RIGHT_ENDLINE) {
-//			m_Player[1].nScore[0][0]++;
-//			m_TennisGame.bCurrentServe = true;
-//			GameStatus = WAITINGSERVE;
-//			KillTimer(1);
-//			return;
-//		}
-//		// 네트 오른쪽에 떨어졌고 코트 안이거나
-//		// 네트 왼쪽에 떨어졌고 코트 밖이면
-//		// p1 득점
-//		if(m_Ball.ptSituation.x >= m_TennisGame.nHResolution / 2 && m_Ball.ptSituation.x <= RIGHT_ENDLINE ||
-//			m_Ball.ptSituation.x < LEFT_ENDLINE) {
-//			m_Player[0].nScore[0][0]++;
-//			m_TennisGame.bCurrentServe = false;
-//			GameStatus = WAITINGSERVE;
-//			KillTimer(1);
-//			return;
-//		}
-//	}
-//
-//	// 공이 네트에 맞았을 경우
-//	if(	m_Ball.ptSituation.x >= m_TennisGame.net.left - 1 &&
-//		m_Ball.ptSituation.x <= m_TennisGame.net.right + 1 &&
-//		m_Ball.ptSituation.y <= m_TennisGame.net.top - 1 &&
-//		m_Ball.ptSituation.y >= m_TennisGame.net.bottom + 1)
-//	{
-//		// 마지막으로 공을 친 선수의 상대편이 득점
-//		if(m_TennisGame.bLastTouch) {
-//			m_Player[1].nScore[0][0]++;
-//			m_TennisGame.bCurrentServe = true;
-//			GameStatus = WAITINGSERVE;
-//			return;
-//		}
-//		else {
-//		m_Player[0].nScore[0][0]++;
-//		m_TennisGame.bCurrentServe = false;
-//		GameStatus = WAITINGSERVE;
-//		return;
-//		}
-//	}
-//}
+void CChildView::CheckBall(void)
+{
+	// 서브 대기 상태일 경우
+	if(GameStatus == WAITINGSERVE) {
+		
+	}
+
+	// 공이 땅에 떨어졌을 경우
+	if(m_Ball.ptCenter.y >= LAND_TOP - 1) {
+		// 네트 왼쪽에 떨어졌고 코트 안이거나
+		// 네트 오른쪽에 떨어졌고 코트 밖이면
+		// p2 득점
+		if(m_Ball.ptCenter.x < WIDTH / 2 && m_Ball.ptCenter.x >= COURT_LEFT ||
+			m_Ball.ptCenter.x > COURT_RIGHT) {
+			m_Player[1].nScore[0][0]++;
+			m_TennisGame.bCurrentServe = true;
+			GameStatus = WAITINGSERVE;
+			KillTimer(1);
+			return;
+		}
+		// 네트 오른쪽에 떨어졌고 코트 안이거나
+		// 네트 왼쪽에 떨어졌고 코트 밖이면
+		// p1 득점
+		if(m_Ball.ptCenter.x >= WIDTH / 2 && m_Ball.ptCenter.x <= COURT_RIGHT ||
+			m_Ball.ptCenter.x < COURT_LEFT) {
+			m_Player[0].nScore[0][0]++;
+			m_TennisGame.bCurrentServe = false;
+			GameStatus = WAITINGSERVE;
+			KillTimer(1);
+			return;
+		}
+	}
+
+	// 공이 네트에 맞았을 경우
+	if(	OverlapCircleArea(m_Ball.ball_rect, m_TennisGame.net))
+	{
+		// 마지막으로 공을 친 선수의 상대편이 득점
+		if(m_TennisGame.bLastTouch) {
+			m_Player[1].nScore[0][0]++;
+			m_TennisGame.bCurrentServe = true;
+			GameStatus = WAITINGSERVE;
+			return;
+		}
+		else {
+		m_Player[0].nScore[0][0]++;
+		m_TennisGame.bCurrentServe = false;
+		GameStatus = WAITINGSERVE;
+		return;
+		}
+	}
+}
 
 
 
@@ -526,7 +542,7 @@ void CChildView::PlayerMove(int player_idx, UINT command)
 {
 	// 장애물에 부딪혔을 때는 y 방향만 움직인다.(낙하)
 	if(m_Player[player_idx].ptSituation.y < LAND_TOP ||
-		GameStatus != RUNNING)
+		!(GameStatus == WAITINGSERVE || GameStatus == RUNNING))
 		return;
 	switch(command) {
 	case VK_LEFT:
@@ -573,10 +589,16 @@ void CChildView::ResetGame(void)
 	m_TennisGame.bCurrentServe = false;
 	m_TennisGame.bLastTouch = false;
 
+	// 선수 속성값 초기화
+	m_Player[0].nFootFault = 0;
+	m_Player[1].nFootFault = 0;
+
+	// 공 속성값 초기화
 	m_Ball.nBound = 0;
 
 	// 자동으로 게임 시작(서브대기)
 	GameStatus = WAITINGSERVE;
+	SetTimer(1, 100, NULL);
 }
 
 
@@ -606,8 +628,8 @@ void CChildView::ResetSituation(void)
 		m_Player[i].player_rect.top = m_Player[i].ptSituation.y - 48;
 	}
 	// 선수의 x 위치값은 따로 지정
-	m_Player[0].ptSituation.x = 150;
-	m_Player[1].ptSituation.x = 442;
+	m_Player[0].ptSituation.x = PLAYER1_SERVE_POS;
+	m_Player[1].ptSituation.x = PLAYER2_SERVE_POS;
 	m_Player[0].player_rect.left = m_Player[0].ptSituation.x;
 	m_Player[0].player_rect.right = m_Player[0].ptSituation.x + 48;
 	m_Player[1].player_rect.left = m_Player[1].ptSituation.x;
@@ -616,7 +638,7 @@ void CChildView::ResetSituation(void)
 	// 공 속성값 초기화
 	m_Ball.ptAcceleration.x = 0;
 	m_Ball.ptAcceleration.y = GRAVITY_ACCELERATION;
-	m_Ball.ptCenter.x = 190;	// 2p 서브 때는 450
+	m_Ball.ptCenter.x = PLAYER1_SERVE_POS + 24;
 	m_Ball.ptCenter.y = LAND_TOP - 40;
 	m_Ball.ptVelosity.x = 0;
 	m_Ball.ptVelosity.y = 0;
@@ -685,11 +707,6 @@ void CChildView::UpdateSituation(void)
 			m_Ball.ptVelosity.x -= FRICTIONAL_FORCE;
 		else if(m_Ball.ptVelosity.x < 0)
 			m_Ball.ptVelosity.x += FRICTIONAL_FORCE;
-	/*if(OverlapCircleArea(m_Ball.ptSituation, m_Ball.nRadius, m_TennisGame.land))
-		if(m_Ball.ptVelosity.x > 0)
-			m_Ball.ptVelosity.x -= FRICTIONAL_FORCE;
-		else if(m_Ball.ptVelosity.x < 0)
-			m_Ball.ptVelosity.x += FRICTIONAL_FORCE;*/
 
 	// 땅에 다 떨어졌으면 y 방향의 속도를 0으로
 	// 점프키를 눌렀을 때는 제외
@@ -728,6 +745,12 @@ void CChildView::UpdateSituation(void)
 	if(m_Ball.ptCenter.y > LAND_TOP - BALL_RADIUS)
 		m_Ball.ptCenter.y = LAND_TOP - BALL_RADIUS;
 
+	// 서브 대기 상태일 때는 공의 위치가 서브할 선수의 위치를 따라간다.
+	if(GameStatus == WAITINGSERVE) {
+		m_Ball.ptCenter.x = m_Player[(int)m_TennisGame.bCurrentServe].ptSituation.x + 25;
+		m_Ball.ptCenter.y = m_Player[(int)m_TennisGame.bCurrentServe].ptSituation.y - 40;
+	}
+
 	// 선수 범위값 재계산
 	for(int i = 0; i < 2; i++) {
 		m_Player[i].player_rect.left = m_Player[i].ptSituation.x;
@@ -745,7 +768,7 @@ void CChildView::UpdateSituation(void)
 	Invalidate();
 
 	// 득점 상황인지 검사
-	//CheckBall();
+	CheckBall();
 }
 
 
