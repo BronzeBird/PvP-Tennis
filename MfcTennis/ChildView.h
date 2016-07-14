@@ -49,7 +49,7 @@
 #define PLAYER_HEIGHT 48			// 플레이어 영역 높이
 
 // 플레이어 관련 위치값
-#define PLAYER1_SERVE_POS	40
+#define PLAYER1_SERVE_POS	50
 #define PLAYER2_SERVE_POS	542
 
 #define MAX_SET 3				// 한 선수가 2세트를 먼저 획득하면 시합 종료(3세트까지 진행 가능)

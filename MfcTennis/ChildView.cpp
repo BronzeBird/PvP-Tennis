@@ -256,7 +256,7 @@ void CChildView::OnPaint()
 		dc.SetBkColor(RGB(255, 255, 255));
 		dc.DrawText(m_TennisGame.strRefree,
 			CRect(ReCalcWidth(120), ReCalcHeight(240),
-			ReCalcWidth(120) + 100, ReCalcHeight(240) + 50), DT_SINGLELINE);
+			ReCalcWidth(220), ReCalcHeight(290)), DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 	}
 
 	// 그리기 메시지에 대해서는 CWnd::OnPaint()를 호출하지 마십시오.
@@ -331,7 +331,7 @@ void CChildView::OnGameStart()
 	//if(GameStatus != GAMEOVER) return;
 	ResetGame();	// 게임 초기화
 	GameStatus = WAITINGSERVE;
-	//SetTimer(1, 100, NULL);
+	SetTimer(1, 100, NULL);
 }
 
 
@@ -392,19 +392,21 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		case DOINGSERVE:
 			m_TennisGame.bLastTouch = false;
 			// 서브 넣은 사람이 다시 치면 fault
-			if(m_TennisGame.bCurrentServe == m_TennisGame.bLastTouch) {
+			if(m_TennisGame.bCurrentServe == m_TennisGame.bLastTouch &&
+				OverlapCircleArea(m_Ball.ball_rect, m_Player[0].player_rect)) {
 				Fault(0);
 				break;
 			}
 			else {
-				GameStatus = RUNNING;
-				m_TennisGame.in_area.SetRect(m_TennisGame.net.right, LAND_TOP,
-					m_TennisGame.court.right, HEIGHT);
+				//GameStatus = RUNNING;
+				//m_TennisGame.in_area.SetRect(m_TennisGame.net.right, LAND_TOP,
+				//	m_TennisGame.court.right, HEIGHT);
 				m_TennisGame.bLastTouch = false;
 				m_Player[0].bmpPlayer.DeleteObject();
 				m_Player[0].bmpPlayer.LoadBitmap(IDB_PLAYER1_SWING);
 				if(!m_Player[0].bSwinging)
 					if(Swing(0)) {
+						m_Ball.nBound = 0;
 						m_Ball.ptVelosity.x = BALL_INITIAL_VELOSITY_X + m_Player[0].ptVelosity.x;
 						m_Ball.ptVelosity.y = BALL_INITIAL_VELOSITY_Y + m_Player[0].ptVelosity.y;
 					}
@@ -424,6 +426,7 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			m_Player[0].bmpPlayer.LoadBitmap(IDB_PLAYER1_SWING);
 			if(!m_Player[0].bSwinging)
 				if(Swing(0)) {
+					m_Ball.nBound = 0;
 					m_Ball.ptVelosity.x = BALL_INITIAL_VELOSITY_X + m_Player[0].ptVelosity.x;
 					m_Ball.ptVelosity.y = BALL_INITIAL_VELOSITY_Y + m_Player[0].ptVelosity.y;
 				}
@@ -448,19 +451,21 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		case DOINGSERVE:
 			m_TennisGame.bLastTouch = true;
 			// 서브 넣은 사람이 다시 치면 fault
-			if(m_TennisGame.bCurrentServe == m_TennisGame.bLastTouch) {
+			if(m_TennisGame.bCurrentServe == m_TennisGame.bLastTouch &&
+				OverlapCircleArea(m_Ball.ball_rect, m_Player[1].player_rect)) {
 				Fault(1);
 				break;
 			}
 			else {
-				GameStatus = RUNNING;
-				m_TennisGame.in_area.SetRect(m_TennisGame.court.left, LAND_TOP,
-					m_TennisGame.net.left, HEIGHT);
+				//GameStatus = RUNNING;
+				//m_TennisGame.in_area.SetRect(m_TennisGame.court.left, LAND_TOP,
+				//	m_TennisGame.net.left, HEIGHT);
 				m_TennisGame.bLastTouch = true;
 				m_Player[1].bmpPlayer.DeleteObject();
 				m_Player[1].bmpPlayer.LoadBitmap(IDB_PLAYER2_SWING);
 				if(!m_Player[1].bSwinging)
 					if(Swing(1)) {
+						m_Ball.nBound = 0;
 						m_Ball.ptVelosity.x = -BALL_INITIAL_VELOSITY_X + m_Player[1].ptVelosity.x;
 						m_Ball.ptVelosity.y = BALL_INITIAL_VELOSITY_Y + m_Player[1].ptVelosity.y;
 					}
@@ -481,6 +486,7 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			m_Player[1].bmpPlayer.LoadBitmap(IDB_PLAYER2_SWING);
 			if(!m_Player[1].bSwinging)
 				if(Swing(1)) {
+					m_Ball.nBound = 0;
 					m_Ball.ptVelosity.x = -BALL_INITIAL_VELOSITY_X + m_Player[1].ptVelosity.x;
 					m_Ball.ptVelosity.y = BALL_INITIAL_VELOSITY_Y + m_Player[1].ptVelosity.y;
 				}
@@ -590,12 +596,19 @@ void CChildView::AddScore(bool bPlayer)
 	// 공 바운드 수를 초기 상태로 되돌리고
 	// 공격이 유효한 선수의 득점
 	m_Ball.nBound = 0;
+	GameStatus = WAITINGSERVE;
 	switch(m_Player[bPlayer].nScore) {
 	case ZERO:
 		m_Player[bPlayer].nScore = FIRST;
+		Invalidate();
+		Sleep(2000);
+		ResetSituation();
 		break;
 	case FIRST:
 		m_Player[bPlayer].nScore = SECOND;
+		Invalidate();
+		Sleep(2000);
+		ResetSituation();
 		break;
 	case SECOND:
 		m_Player[bPlayer].nScore = THIRD;
@@ -605,9 +618,9 @@ void CChildView::AddScore(bool bPlayer)
 			m_Player[bPlayer].nScore = ADVANTAGE;
 			Invalidate();
 			Sleep(2000);
-			GameStatus = WAITINGSERVE;
+			//GameStatus = WAITINGSERVE;
 			m_TennisGame.strRefree = "";
-			ResetSituation();
+			//ResetSituation();
 		}
 		break;
 	case THIRD:
@@ -634,6 +647,7 @@ void CChildView::AddScore(bool bPlayer)
 		AddGame(bPlayer);
 		break;
 	}
+
 }
 
 
@@ -649,6 +663,16 @@ void CChildView::CheckBall(void)
 			// 공이 유효영역 안에 떨어지면 in
 			if(m_Ball.ptCenter.x >= m_TennisGame.in_area.left ||
 				m_Ball.ptCenter.x <= m_TennisGame.in_area.right) {
+					// 서브 상태(DOINGSERVE)였다면
+					// 게임중(RUNNING)으로 전환하고 유효영역을 갱신
+					if(GameStatus == DOINGSERVE) {
+						GameStatus = RUNNING;
+						m_TennisGame.in_area.SetRect(
+							m_TennisGame.bLastTouch ? COURT_LEFT : NET_RIGHT,
+							LAND_TOP,
+							m_TennisGame.bLastTouch ? NET_LEFT : COURT_RIGHT,
+							HEIGHT);
+					}
 				return;
 			}
 
@@ -670,14 +694,26 @@ void CChildView::CheckBall(void)
 		// 두 번째 바운드일 경우 공격이 유효한 다음이므로
 		// 마지막으로 친 선수가 득점
 		else {
-			AddScore(m_TennisGame.bLastTouch);
-			return;
+			// 유효 영역 안에 들어왔을 경우
+			m_Ball.nBound = 0;
+			if(m_Ball.ptCenter.x >= m_TennisGame.in_area.left &&
+				m_Ball.ptCenter.x <= m_TennisGame.in_area.right) {
+				AddScore(m_TennisGame.bLastTouch);
+				return;
+			}
+
+			// 유효 영역 밖일 경우
+			else {
+				AddScore(!m_TennisGame.bLastTouch);
+				return;
+			}
 		}
 	}
 
 	// 공이 네트에 맞았을 경우
 	// 마지막으로 친 선수의 상대편이 득점
 	if(OverlapCircleArea(m_Ball.ball_rect, m_TennisGame.net)) {
+		m_Ball.nBound = 0;
 		AddScore(!m_TennisGame.bLastTouch);
 		return;
 	}
@@ -857,7 +893,6 @@ void CChildView::ResetGame(void)
 	// 유효범위 초기화
 	// 서브권자가 P1일 경우 P2의 서비스박스,
 	// 서브권자가 P2일 경우 P1의 서비스박스
-	//m_TennisGame.in_area.CopyRect(m_TennisGame.service_box);
 	m_TennisGame.in_area.SetRect(
 		m_TennisGame.bCurrentServe ? m_TennisGame.service_box.left : m_TennisGame.net.right,
 		LAND_TOP,
@@ -954,7 +989,6 @@ void CChildView::UpdateSituation(void)
 		m_Player[1].ptVelosity.x = PLAYER_MAX_SPEED;
 	else if(m_Player[1].ptVelosity.x < -PLAYER_MAX_SPEED)
 		m_Player[1].ptVelosity.x = -PLAYER_MAX_SPEED;
-
 
 	// 땅에 떨어지면 속도가 줄어듦
 	if(m_Player[0].ptSituation.y >= LAND_TOP)
